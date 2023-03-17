@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class WeatherAlertSystem implements TemperatureStream, RainfallStream {
     private List<WeatherObserver> observers;
@@ -31,12 +31,13 @@ public class WeatherAlertSystem implements TemperatureStream, RainfallStream {
     public void onRainfallChange(RainfallRecord record) {
         recentRainfall.add(record);
         // remove records older than 1 hour
-        LocalDateTime oldestAllowed = LocalDateTime.now().minusHours(1);
-        recentRainfall.removeIf(r -> r.getDt().isBefore(oldestAllowed));
+        LocalDateTime oldestAllowed = record.getDt().minusHours(1);
+        List<RainfallRecord> temp = recentRainfall.stream().filter(r -> r.getDt().isAfter(oldestAllowed)).collect(Collectors.toList());
+       // recentRainfall.removeIf(r -> r.getDt().isBefore(oldestAllowed));
 
-        double rainfall = recentRainfall.stream().mapToDouble(RainfallRecord::getRainfall).sum();
+        double rainfall = temp.stream().mapToDouble(RainfallRecord::getRainfall).sum();
         // adjust for evaporation
-        double oldestTimeInHours = Duration.between(oldestAllowed, record.getDt()).toMinutes() / 60.0;
+        double oldestTimeInHours = Duration.between(temp.get(0).getDt(), record.getDt()).toMinutes() / 60.0;
         double adjustedRainfall = rainfall - (0.1 * oldestTimeInHours);
         currentRainfall = adjustedRainfall;
         if (currentRainfall > 2) {
@@ -58,11 +59,12 @@ public class WeatherAlertSystem implements TemperatureStream, RainfallStream {
     public void onTemperatureChange(TempRecord record) {
         recentTemps.add(record);
         // remove any records that are older than 5 mins
-        LocalDateTime oldestTimeAllowed = LocalDateTime.now().minusMinutes(5);
+        LocalDateTime oldestTimeAllowed = record.getDt().minusMinutes(5);
         recentTemps.removeIf(r -> r.getDt().isBefore(oldestTimeAllowed));
+        List<TempRecord> temp = recentTemps.stream().filter(r -> r.getDt().isAfter(oldestTimeAllowed)).collect(Collectors.toList());
 
-        double temperature = recentTemps.stream().mapToDouble(TempRecord::getTemp).sum();
-        double averageTemp = temperature / recentTemps.size();
+        double temperature = temp.stream().mapToDouble(TempRecord::getTemp).sum();
+        double averageTemp = temperature / temp.size();
 
         currentTemperature = averageTemp;
         System.out.println("Average temp is " + averageTemp);

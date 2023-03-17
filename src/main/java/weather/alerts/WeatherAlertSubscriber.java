@@ -3,9 +3,10 @@ package weather.alerts;
 import java.util.LinkedList;
 import java.util.List;
 
-public class WeatherAlertSubscriber implements WeatherObserver{
+public class WeatherAlertSubscriber implements WeatherObserver {
     private String name;
     private List<String> messages;
+
     public WeatherAlertSubscriber(String name) {
         this.name = name;
         this.messages = new LinkedList<>();

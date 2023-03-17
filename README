@@ -1,0 +1,29 @@
+Rules
+
+RuleSet:
+
+·         Tempurate updates are only provided when there is a change
+
+·         Rainfall updates are provided only when there are new amounts.
+
+·         The environment evaporates rainfall at a rate of .1in per hour
+
+·         Notify when the average temperature in the last 5 mins falls below 37 degrees.
+
+·         Notify when the totalRainfall is expect to be over 2 in per hour.
+
+·         Notify current weather conditions and when a change occurs
+
+o   DRIZZLE = (0 < current rain  < .1 in) / hour
+
+o   RAIN = (.1 <= current rain < .5 in) / hour
+
+o   POUR = (.5 <= current rain < 5 in) / hour
+
+o   FLOOD ( current rain > 5 in/hour )
+
+o   HAIL ( current rain, temp = steady 32 for 5 min)
+
+o   SNOW ( current rain, temp < 32 )
+
+Used Observer design pattern
